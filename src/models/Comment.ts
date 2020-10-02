@@ -8,10 +8,6 @@ const commentSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'User',
   },
-  task: {
-    type: Schema.Types.ObjectId,
-    ref: 'Task',
-  },
 });
 
 const Comment = mongoose.model('Comment', commentSchema);

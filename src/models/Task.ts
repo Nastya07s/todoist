@@ -8,10 +8,12 @@ const taskSchema = new Schema({
     type: String,
   },
   priority: { type: String, required: true },
-  project: {
-    type: Schema.Types.ObjectId,
-    ref: 'Project',
-  },
+  comments: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: 'Comment',
+    },
+  ],
 });
 
 const Task = mongoose.model('Task', taskSchema);
