@@ -9,13 +9,7 @@ const projectSchema = new Schema({
       type: Schema.Types.ObjectId,
       ref: 'User',
     },
-  ],
-  tasks: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: 'Task',
-    }, 
-  ],
+  ]
 });
 
 const Project = mongoose.model('Project', projectSchema);

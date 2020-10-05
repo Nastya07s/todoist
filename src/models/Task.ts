@@ -1,13 +1,19 @@
-import mongoose from 'mongoose';
+import mongoose, { Document, Schema } from 'mongoose';
 
-const { Schema } = mongoose;
+export interface ITask extends Document {
+  title: string;
+  comments: Array<Schema.Types.ObjectId>;
+  description?: string;
+  priority?: string;
+}
 
 const taskSchema = new Schema({
   title: { type: String, required: true },
-  decription: {
+  description: {
     type: String,
   },
-  priority: { type: String, required: true },
+  priority: { type: String },
+  project: {type: Schema.Types.ObjectId, ref: 'Project', required: true},
   comments: [
     {
       type: Schema.Types.ObjectId,
