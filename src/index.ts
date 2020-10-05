@@ -3,7 +3,9 @@ import dotenv = require('dotenv');
 import bodyParser = require('body-parser');
 
 // import { UserModel } from './models';
-import { commentRoutes, projectRoutes, taskRoutes } from './routes';
+import { authRoutes, commentRoutes, projectRoutes, taskRoutes } from './routes';
+const keys = require('./config/keys');
+const passport = require('passport');
 
 const mongoose = require('mongoose');
 
@@ -11,12 +13,31 @@ dotenv.config();
 
 const app: express.Application = express();
 
-mongoose.connect('mongodb://localhost:27017/todoist', {
+mongoose.Promise = global.Promise;
+mongoose.connect(keys.mongoURI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   useCreateIndex: true,
-  useFindAndModify: false
+  useFindAndModify: false,
 });
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.serializeUser(function (
+  user: any,
+  done: (arg0: null, arg1: any) => void
+) {
+  done(null, user);
+});
+
+passport.deserializeUser(function (
+  user: any,
+  done: (arg0: null, arg1: any) => void
+) {
+  done(null, user);
+});
+require('./middleware/passport')(passport);
 
 app.use(bodyParser.json());
 app.use(function logMethodAndUrl(request, response, next) {
@@ -27,6 +48,7 @@ app.use(function logMethodAndUrl(request, response, next) {
 app.use('/api/project', projectRoutes);
 app.use('/api/task', taskRoutes);
 app.use('/api/comment', commentRoutes);
+app.use('/api/auth', authRoutes);
 
 const port = process.env.PORT || 3000;
 
