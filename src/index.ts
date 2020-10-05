@@ -1,7 +1,9 @@
 import express = require('express');
 import dotenv = require('dotenv');
+import bodyParser = require('body-parser');
 
-import { UserModel } from './models';
+// import { UserModel } from './models';
+import { commentRoutes, projectRoutes, taskRoutes } from './routes';
 
 const mongoose = require('mongoose');
 
@@ -12,19 +14,19 @@ const app: express.Application = express();
 mongoose.connect('mongodb://localhost:27017/todoist', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-  useCreateIndex: true
+  useCreateIndex: true,
+  useFindAndModify: false
 });
 
-app.get('/', function (req, res) {
-  UserModel.create(
-    { login: 'nastya07s', email: 'test3@mail.ru', password: '123' },
-    function (err, small) {
-      if (err) return res.send(err);
-      // saved!
-      res.send('Hello World!');
-    }
-  );
+app.use(bodyParser.json());
+app.use(function logMethodAndUrl(request, response, next) {
+  console.log(`${request.method} ${request.url}`);
+  next();
 });
+
+app.use('/api/project', projectRoutes);
+app.use('/api/task', taskRoutes);
+app.use('/api/comment', commentRoutes);
 
 const port = process.env.PORT || 3000;
 
