@@ -1,15 +1,29 @@
 import express from 'express';
-import { ProjectModel, TaskModel } from '../models';
+import { ProjectModel, TaskModel, UserModel } from '../models';
+
+const jwt = require('jsonwebtoken');
+const keys = require('../config/keys');
 
 class ProjectController {
-  //TODO: при добавлении надо добавить пользователя
   static create(req: express.Request, res: express.Response) {
+    let token = req.headers.authorization;
+    if (token?.startsWith('Bearer ')) {
+      token = token.slice(7, token.length);
+    }
+    const {userId} = jwt.verify(token, keys.jwt);
     const projectData = {
       name: req.body.name,
+      users: [userId]
     };
     ProjectModel.create(projectData)
       .then((project) => {
-        res.send(project);
+        UserModel.findByIdAndUpdate(
+          userId,
+          { $push: { projects: project._id } },
+          () => {
+            res.send(project);
+          }
+        );
       })
       .catch((reason) => {
         res.json(reason);
