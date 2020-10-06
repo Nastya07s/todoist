@@ -16,6 +16,7 @@ const userSchema = new Schema({
     },
   },
   password: { type: String, required: true },
+  googleId: { type: String },
   projects: [
     {
       type: Schema.Types.ObjectId,

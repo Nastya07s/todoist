@@ -71,3 +71,22 @@ module.exports.register = async function (
     }
   }
 };
+
+module.exports.loginGoogle = async function (
+  req: express.Request,
+  res: express.Response
+) {
+  const user: any = req.user;
+  const token = jwt.sign(
+    {
+      login: user.login,
+      userId: user._id,
+    },
+    keys.jwt,
+    { expiresIn: 60 * 60 }
+  );
+
+  res.status(200).json({
+    token: `Bearer ${token}`,
+  });
+};
