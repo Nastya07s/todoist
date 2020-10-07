@@ -5,48 +5,35 @@ import { ITask } from '../models/Task';
 
 class TaskController {
   static create(req: express.Request, res: express.Response) {
-    const taskData = {
-      title: req.body.title,
-      comments: [],
-      description: req.body.description,
-      priority: req.body.priority,
-      project: req.body.project,
-    };
-    TaskModel.create(taskData)
-      .then((task) => {
-        res.send(task);
+    TaskModel.create({...req.body, comments: []})
+      .then(() => {
+        res.status(201).send();
       })
       .catch((reason) => {
-        res.json(reason);
+        res.status(400).json(reason);
       });
   }
 
   static getOne(req: express.Request, res: express.Response) {
     const idTask = req.params.id;
-    TaskModel.findById(idTask)
+    TaskModel.findById(idTask).populate('comments')
       .then((task) => {
         res.send(task);
       })
       .catch((reason) => {
-        res.json(reason);
+        res.status(404).json(reason);
       });
   }
 
   static update(req: express.Request, res: express.Response) {
     const idTask = req.params.id;
 
-    const taskData = {
-      title: req.body.title,
-      description: req.body.description,
-      priority: req.body.priority,
-    };
-
-    TaskModel.findByIdAndUpdate(idTask, taskData, { new: true })
-      .then((task) => {
-        res.send(task);
+    TaskModel.findByIdAndUpdate(idTask, { ...req.body }, { new: true })
+      .then(() => {
+        res.status(204).send();
       })
       .catch((reason) => {
-        res.json(reason);
+        res.status(400).json(reason);
       });
   }
 
@@ -54,10 +41,10 @@ class TaskController {
     const idTask = req.params.id;
     TaskModel.findByIdAndRemove(idTask)
       .then(() => {
-        res.send('Task delete');
+        res.status(204).send();
       })
       .catch((reason) => {
-        res.json(reason);
+        res.status(400).json(reason);
       });
   }
 }

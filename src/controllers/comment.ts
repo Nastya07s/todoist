@@ -1,22 +1,32 @@
 import express from 'express';
 import { CommentModel, TaskModel } from '../models';
 
-class CommentController {
-  // TODO: connent comment with user
-  // TODO: add a lot of beautiful and small commits
-  static create(req: express.Request, res: express.Response) {
-    const commentData = {
-      text: req.body.text,
-      // user: req.body.user,
-    };
+const jwt = require('jsonwebtoken');
+const keys = require('../config/keys');
 
-    CommentModel.create(commentData).then((comment) => {
-      TaskModel.findByIdAndUpdate(
-        req.body.task,
-        { $push: { comments: comment._id } },
-        { new: true }
-      ).then(() => res.send(comment))
-    });
+class CommentController {
+  static create(req: express.Request, res: express.Response) {
+    let token = req.headers.authorization;
+    if (token?.startsWith('Bearer ')) {
+      token = token.slice(7, token.length);
+    }
+    const { userId } = jwt.verify(token, keys.jwt);
+
+    CommentModel.create({ ...req.body, user: userId })
+      .then((comment) => {
+        TaskModel.findByIdAndUpdate(
+          req.body.task,
+          { $push: { comments: comment._id } },
+          { new: true }
+        )
+          .then(() => res.status(201).send(comment))
+          .catch((reason) => {
+            res.status(400).json(reason);
+          });
+      })
+      .catch((reason) => {
+        res.status(400).json(reason);
+      });
   }
 }
 
