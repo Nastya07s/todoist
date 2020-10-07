@@ -5,41 +5,38 @@ const jwt = require('jsonwebtoken');
 const keys = require('../config/keys');
 
 class ProjectController {
-  static create(req: express.Request, res: express.Response) {
+  static async create(req: express.Request, res: express.Response) {
     let token = req.headers.authorization;
     if (token?.startsWith('Bearer ')) {
       token = token.slice(7, token.length);
     }
-
-    const { userId } = jwt.verify(token, keys.jwt);
-    ProjectModel.create({ ...req.body, users: [userId] })
-      .then((project) => {
-        UserModel.findByIdAndUpdate(
-          userId,
-          { $push: { projects: project._id } },
-          () => {
-            res.status(201).send(project);
-          }
-        );
-      })
-      .catch((reason) => {
-        res.status(400).json(reason);
+    try {
+      const { userId } = jwt.verify(token, keys.jwt);
+      const project = await ProjectModel.create({
+        ...req.body,
+        users: [userId],
       });
+      await UserModel.findByIdAndUpdate(userId, {
+        $push: { projects: project._id },
+      });
+      
+      res.status(201).send(project);
+    } catch (reason) {
+      res.status(400).json(reason);
+    }
   }
 
-  static getOne(req: express.Request, res: express.Response) {
+  static async getOne(req: express.Request, res: express.Response) {
     const idProject = req.params.id;
+    try {
+      const project = await ProjectModel.findById(idProject);
+      const tasks = await TaskModel.find({ project: idProject });
+      const projectObject = { project, tasks: [...tasks] };
 
-    ProjectModel.findById(idProject)
-      .then((project) => {
-        TaskModel.find({ project: idProject })
-          .then((tasks) => {
-            const projectObject = { project, tasks: [...tasks] };
-            res.send(projectObject);
-          })
-          .catch(() => res.status(404));
-      })
-      .catch(() => res.status(404));
+      res.send(projectObject);
+    } catch (reason) {
+      res.status(404).json(reason);
+    }
   }
 
   static async update(req: express.Request, res: express.Response) {
@@ -64,19 +61,16 @@ class ProjectController {
       });
   }
 
-  static delete(req: express.Request, res: express.Response) {
+  static async delete(req: express.Request, res: express.Response) {
     const idProject = req.params.id;
-    ProjectModel.findByIdAndRemove(idProject)
-      .then(() => {
-        TaskModel.deleteMany({ project: idProject })
-          .then(() => res.status(204).send())
-          .catch((reason) => {
-            res.status(400).json(reason);
-          });
-      })
-      .catch((reason) => {
-        res.status(400).json(reason);
-      });
+    try {
+      await ProjectModel.findByIdAndRemove(idProject);
+      await TaskModel.deleteMany({ project: idProject });
+
+      res.status(204).send();
+    } catch (reason) {
+      res.status(400).json(reason);
+    }
   }
 }
 

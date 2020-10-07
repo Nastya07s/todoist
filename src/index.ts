@@ -6,18 +6,16 @@ const https = require('https');
 const http = require('http');
 const fs = require('fs');
 
-// import { UserModel } from './models';
 import {
-  authRoutes,
-  commentRoutes,
-  projectRoutes,
-  searchRoutes,
-  taskRoutes,
-  userRoutes,
-} from './routes';
+  authRouter,
+  commentRouter,
+  projectRouter,
+  searchRouter,
+  taskRouter,
+} from './routers';
+
 const keys = require('./config/keys');
 const passport = require('passport');
-
 const mongoose = require('mongoose');
 
 dotenv.config();
@@ -25,7 +23,7 @@ dotenv.config();
 const app: express.Application = express();
 
 mongoose.Promise = global.Promise;
-mongoose.connect(keys.mongoURI, {
+mongoose.connect(process.env.MONGO_URL, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   useCreateIndex: true,
@@ -47,17 +45,16 @@ const port = process.env.PORT || 3000;
 
 app.use(function (req, res, next) {
   if (!req.secure) {
-    return res.redirect(307, 'https://localhost:' + port + req.url);
+    return res.redirect(307, req.hostname + ':' + port + req.url);
   }
   next();
 });
 
-app.use('/api/project', projectRoutes);
-app.use('/api/task', taskRoutes);
-app.use('/api/comment', commentRoutes);
-app.use('/api/auth', authRoutes);
-app.use('/api/user', userRoutes);
-app.use('/api/search', searchRoutes);
+app.use('/api/project', projectRouter);
+app.use('/api/task', taskRouter);
+app.use('/api/comment', commentRouter);
+app.use('/api/auth', authRouter);
+app.use('/api/search', searchRouter);
 
 const options = {
   key: fs.readFileSync('server.key'),

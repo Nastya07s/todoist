@@ -12,7 +12,6 @@ const userSchema = new Schema({
     validate: {
       validator: validator.isEmail,
       message: '{VALUE} is not a valid email',
-      // isAsync: false,
     },
   },
   password: { type: String, required: true },

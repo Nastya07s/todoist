@@ -1,7 +1,6 @@
 import express from 'express';
 
-import { ProjectModel, TaskModel } from '../models';
-import { ITask } from '../models/Task';
+import { TaskModel } from '../models';
 
 class TaskController {
   static create(req: express.Request, res: express.Response) {

@@ -1,6 +1,5 @@
 import { Document } from 'mongoose';
-import { Authenticator, Strategy } from 'passport';
-import { Profile, VerifyCallback } from 'passport-google-oauth20';
+import { Authenticator } from 'passport';
 import { UserModel } from '../models';
 
 const JwtStrategy = require('passport-jwt').Strategy;
@@ -55,8 +54,8 @@ module.exports = (passport: Authenticator) => {
     new GoogleStrategy(
       {
         clientID:
-          '905822146489-1l0d0ofqoab7dvvdfv7kj8g7abkm0ttp.apps.googleusercontent.com',
-        clientSecret: 'm16amyl_ZesY6iXy154MybLp',
+          process.env.CLIENT_ID_GOOGLE,
+        clientSecret: process.env.CLIENT_SECRET_GOOGLE,
         callbackURL: 'http://localhost:3000/api/auth/google/callback',
       },
       async (accessToken: any, refreshToken: any, profile: any, done: any) => {

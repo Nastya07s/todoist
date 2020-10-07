@@ -1,6 +1,5 @@
 import express from 'express';
 import { ProjectModel, TaskModel } from '../models';
-const controller = require('./auth');
 
 class SearchController {
   static async byNameTaskOrProject(
