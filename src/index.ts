@@ -11,6 +11,7 @@ import {
   authRoutes,
   commentRoutes,
   projectRoutes,
+  searchRoutes,
   taskRoutes,
   userRoutes,
 } from './routes';
@@ -56,6 +57,7 @@ app.use('/api/task', taskRoutes);
 app.use('/api/comment', commentRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
+app.use('/api/search', searchRoutes);
 
 const options = {
   key: fs.readFileSync('server.key'),
