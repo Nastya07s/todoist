@@ -8,14 +8,19 @@ import { UserModel } from '../models';
 
 class AuthController {
   static async login(req: express.Request, res: express.Response) {
-    const candidate: any = await UserModel.findOne({ login: req.body.login });
+    const candidates: any = await UserModel.find({ login: req.body.login });
 
-    if (candidate) {
+    if (!candidates.length)
+      return res.status(404).json({
+        message: 'This user does not exist',
+      });
+
+    let tokenForEnter = '';
+    candidates.forEach((candidate: any) => {
       const passResult = bcrypt.compareSync(
         req.body.password,
         candidate.password
       );
-
       if (passResult) {
         const token = jwt.sign(
           {
@@ -25,20 +30,20 @@ class AuthController {
           keys.jwt,
           { expiresIn: 60 * 60 }
         );
+        tokenForEnter = `Bearer ${token}`;
 
-        res.status(200).json({
-          token: `Bearer ${token}`,
-        });
-      } else {
-        res.status(401).json({
-          message: 'Password entered incorrectly',
-        });
+        return;
       }
-    } else {
-      res.status(404).json({
-        message: 'This user does not exist',
+    });
+
+    if (tokenForEnter)
+      return res.status(200).json({
+        token: tokenForEnter,
       });
-    }
+
+    res.status(401).json({
+      message: 'Password entered incorrectly',
+    });
   }
 
   static async register(req: express.Request, res: express.Response) {

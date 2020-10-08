@@ -1,7 +1,5 @@
 const nodemailer = require('nodemailer');
 
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-
 export default async function sendMail (text: string, titleTask: string) {
   const mentionings = text.match(/\*.*?\s/g);
   const emails = mentionings?.map((mentioning) => mentioning.trim().slice(1));
